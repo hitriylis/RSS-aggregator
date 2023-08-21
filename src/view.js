@@ -12,7 +12,7 @@ const render = (state) => {
     paragraph.classList.remove('text-success');
     paragraph.classList.add('text-danger');
   } else {
-    paragraph.textContent = i18n.t('validate.success');
+    paragraph.textContent = i18n.t('success');
     input.classList.remove('is-invalid');
     paragraph.classList.remove('text-danger');
     paragraph.classList.add('text-success');
