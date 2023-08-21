@@ -1,10 +1,14 @@
 export default {
-  translation: {
-    success: 'RSS успешно загружен',
-    errors: {
-      default: 'Неверные данные',
-      invalidUrl: 'Ссылка должна быть валидным URL',
-      existingUrl: 'RSS уже существует',
+  ru: {
+    translation: {
+      validate: {
+        success: 'Rss успешно загружен',
+        errors: {
+          default: 'Неверные данные',
+          existingUrl: 'RSS уже существует',
+          invalidUrl: 'Ссылка должна быть валидным URL',
+        },
+      },
     },
   },
 };

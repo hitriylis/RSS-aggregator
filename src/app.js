@@ -5,7 +5,7 @@ import render from './view';
 
 yup.setLocale({
   string: {
-    url: () => 'errors.invalidUrl',
+    url: () => 'validate.errors.invalidUrl',
   },
 });
 
@@ -27,7 +27,7 @@ const app = () => {
     const formData = new FormData(e.target);
     const urlName = formData.get('url');
     if (urlName === state.currentUrl) {
-      watchedState.validateError = 'errors.existingUrl';
+      watchedState.validateError = 'validate.errors.existingUrl';
       return;
     }
 
