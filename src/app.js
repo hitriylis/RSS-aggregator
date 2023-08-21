@@ -1,13 +1,20 @@
 import onChange from 'on-change';
+import * as yup from 'yup';
 import { string } from 'yup';
 import render from './view';
+
+yup.setLocale({
+  string: {
+    url: () => 'validate.errors.invalidUrl',
+  },
+});
+
+const urlSchema = (string().url());
 
 const state = {
   currentUrl: '',
   validateError: '',
 };
-
-const urlSchema = (string().url().nullable());
 
 const watchedState = onChange(state, () => {
   render(state);
@@ -20,17 +27,17 @@ const app = () => {
     const formData = new FormData(e.target);
     const urlName = formData.get('url');
     if (urlName === state.currentUrl) {
-      watchedState.validateError = 'RSS уже существует';
+      watchedState.validateError = 'validate.errors.existingUrl';
       return;
     }
-    const validateForm = urlSchema.validate(urlName);
-    validateForm
+
+    urlSchema.validate(urlName)
       .then((response) => {
         watchedState.currentUrl = response;
         watchedState.validateError = '';
       })
-      .catch(() => {
-        watchedState.validateError = 'Ссылка должна быть валидным URL';
+      .catch((error) => {
+        watchedState.validateError = error.message;
       });
   });
 };
