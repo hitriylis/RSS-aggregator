@@ -50,7 +50,7 @@ const render = (state) => {
       postsList.prepend(post);
     });
 
-    paragraph.textContent = i18n.t('validate.loadSuccess');
+    paragraph.textContent = i18n.t('validate.success');
     input.classList.remove('is-invalid');
     paragraph.classList.remove('text-danger');
     paragraph.classList.add('text-success');
