@@ -106,7 +106,7 @@ const app = () => {
     const urlName = formData.get('url');
     urlSchema.validate(urlName).then((response) => {
       if (state.urls.includes(response)) {
-        state.error = 'validate.errors.urlRepeatable';
+        state.error = 'validate.errors.existingUrl';
         watchedState.isValid = 'error';
       } else {
         state.error = '';
