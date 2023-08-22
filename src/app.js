@@ -13,6 +13,8 @@ yup.setLocale({
 const urlSchema = (string().url());
 
 const state = {
+  urls: [],
+  error: '',
   feeds: [],
   posts: [],
 };
