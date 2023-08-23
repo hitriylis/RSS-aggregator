@@ -1,7 +1,3 @@
 /node_modules/
 *.log
 dist
-assets
-/test-results/
-/playwright-report/
-/playwright/.cache/
