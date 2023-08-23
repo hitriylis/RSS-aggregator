@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "RSS Aggregator",
   "main": "src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hitriylis/frontend-project-11.git"
@@ -19,6 +17,7 @@
   "devDependencies": {
     "@babel/core": "^7.22.10",
     "@babel/preset-env": "^7.22.10",
+    "@playwright/test": "^1.37.1",
     "babel-loader": "^9.1.3",
     "css-loader": "^6.8.1",
     "eslint": "^8.47.0",
