@@ -44,7 +44,7 @@ const watchedState = onChange(state, (path) => {
       render(state, 'modalPost');
       break;
     default:
-      throw new Error('Unknown state!');
+      throw new Error('Error!');
   }
 });
 
@@ -107,13 +107,11 @@ const postsSelection = (url) => {
         default:
           throw new Error('Error!');
       }
-      console.log(error);
     });
 };
 
 let timerId = '';
-
-const checkFeed = () => {
+const cycle = () => {
   clearTimeout(timerId);
   timerId = setTimeout(function innerFunc() {
     state.posts = [];
@@ -130,6 +128,7 @@ const app = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const urlName = formData.get('url');
+
     if (!urlName) {
       state.error = 'validate.errors.emptyUrl';
       watchedState.isValid = 'error';
@@ -142,7 +141,7 @@ const app = () => {
           state.error = '';
           watchedState.isValid = 'sending';
           postsSelection(urlName);
-          checkFeed();
+          cycle();
         }
       })
         .catch((error) => {

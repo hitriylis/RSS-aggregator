@@ -8,7 +8,7 @@ const handleProcessState = (state) => {
   const submitButton = document.querySelector('button[type="submit"]');
   switch (state.isValid) {
     case 'done':
-      paragraph.textContent = i18n.t('validate.success');
+      paragraph.textContent = i18n.t('validate.loadSuccess');
       input.classList.remove('is-invalid');
       paragraph.classList.remove('text-danger');
       paragraph.classList.add('text-success');
@@ -61,6 +61,7 @@ const render = (state, content) => {
       postsTitle.textContent = 'Посты';
       const postsList = postsContainer.querySelector('.list-group');
       postsList.innerHTML = '';
+
       state.posts.forEach(({ postTitle, postLink, postId }) => {
         const watchedPostClass = state.uiState.watchedPosts.includes(postLink) ? 'fw-normal' : 'fw-bold';
         const post = document.createElement('li');
