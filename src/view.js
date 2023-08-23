@@ -33,20 +33,14 @@ const handleProcessState = (state) => {
 
 const render = (state, content) => {
   switch (content) {
-    case 'content': {
+    case 'feeds': {
       const feedsContainer = document.querySelector('.feeds');
       const feedsTitle = feedsContainer.querySelector('.card-title');
       feedsTitle.textContent = 'Фиды';
       const feedsList = feedsContainer.querySelector('.list-group');
       feedsList.innerHTML = '';
-      const postsContainer = document.querySelector('.posts');
-      const postsTitle = postsContainer.querySelector('.card-title');
-      postsTitle.textContent = 'Посты';
-      const postsList = postsContainer.querySelector('.list-group');
-      postsList.innerHTML = '';
-
-      state.content.forEach(({
-        feedTitle, feedDescription, feedPosts, feedUrl,
+      state.feeds.forEach(({
+        feedTitle, feedDescription,
       }) => {
         const feed = document.createElement('li');
         feed.classList.add('list-group-item', 'border-0', 'border-end-0');
@@ -58,17 +52,25 @@ const render = (state, content) => {
         description.textContent = feedDescription;
         feed.append(title, description);
         feedsList.prepend(feed);
-        feedPosts.forEach(({ postTitle, postLink, postId }) => {
-          const watchedPostClass = state.uiState.watchedPosts.includes(postLink) ? 'fw-normal' : 'fw-bold';
-          const post = document.createElement('li');
-          post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-          const link = document.createElement('a');
-          const button = document.createElement('button');
-          post.append(link, button);
-          button.outerHTML = `<button type="button" class="btn btn-outline-primary btn-sm" data-id="${postId}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>`;
-          link.outerHTML = `<a href="${postLink}" class=${watchedPostClass} data-feedUrl="${feedUrl}" data-id="${postId}" target="_blank" rel="noopener noreferrer">${postTitle}</a>`;
-          postsList.prepend(post);
-        });
+      });
+      break;
+    }
+    case 'posts': {
+      const postsContainer = document.querySelector('.posts');
+      const postsTitle = postsContainer.querySelector('.card-title');
+      postsTitle.textContent = 'Посты';
+      const postsList = postsContainer.querySelector('.list-group');
+      postsList.innerHTML = '';
+      state.posts.forEach(({ postTitle, postLink, postId }) => {
+        const watchedPostClass = state.uiState.watchedPosts.includes(postLink) ? 'fw-normal' : 'fw-bold';
+        const post = document.createElement('li');
+        post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+        const link = document.createElement('a');
+        const button = document.createElement('button');
+        post.append(link, button);
+        button.outerHTML = `<button type="button" class="btn btn-outline-primary btn-sm" data-id="${postId}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>`;
+        link.outerHTML = `<a href="${postLink}" class=${watchedPostClass} data-id="${postId}" target="_blank" rel="noopener noreferrer">${postTitle}</a>`;
+        postsList.prepend(post);
       });
       break;
     }

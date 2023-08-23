@@ -18,7 +18,8 @@ const state = {
   urls: [],
   isValid: '',
   error: '',
-  content: [],
+  feeds: [],
+  posts: [],
   uiState: {
     watchedPosts: [],
   },
@@ -30,11 +31,14 @@ const watchedState = onChange(state, (path) => {
     case 'isValid':
       handleProcessState(state);
       break;
-    case 'content':
-      render(state, 'content');
+    case 'feeds':
+      render(state, 'feeds');
+      break;
+    case 'posts':
+      render(state, 'posts');
       break;
     case 'uiState.watchedPosts':
-      render(state, 'content');
+      render(state, 'posts');
       break;
     case 'modalPost':
       render(state, 'modalPost');
@@ -48,46 +52,34 @@ const responseDocument = (url, doc, initialState) => {
   const feedTitle = doc.body.querySelector('title').textContent;
   const feedDescription = doc.body.querySelector('description').textContent;
   const posts = doc.querySelectorAll('item');
+  const postsCount = posts.length;
   const feedUrl = url;
 
   if (!initialState.urls.includes(url)) {
-    const feedsCount = initialState.content.length;
+    const feedsCount = initialState.feeds.length;
     const postsArea = feedsCount * 100;
     const feedId = postsArea;
-    const feedPosts = [];
-    posts.forEach((post) => {
-      const postId = feedPosts.length;
-      const postTitle = post.querySelector('title').textContent;
-      const postDescription = post.querySelector('description').textContent;
-      const linkElement = post.querySelector('link');
-      const postLink = linkElement.nextSibling.textContent.trim();
-      feedPosts.unshift({
-        postTitle, postDescription, postLink, postId,
-      });
-    });
     initialState.urls.push(url);
     watchedState.isValid = 'done';
-    watchedState.content.push({
-      feedTitle, feedDescription, feedId, feedUrl, feedPosts,
+    watchedState.feeds.push({
+      feedTitle, feedDescription, feedId, feedUrl, postsCount,
     });
-  } else {
-    const findFeed = (obj) => (_.get(obj, 'feedUrl') === url);
-    const currentFeed = initialState.content.find(findFeed);
-    const feedPosts = [];
-    posts.forEach((post) => {
-      const postId = feedPosts.length;
-      const postTitle = post.querySelector('title').textContent;
-      const postDescription = post.querySelector('description').textContent;
-      const linkElement = post.querySelector('link');
-      const postLink = linkElement.nextSibling.textContent.trim();
-      feedPosts.unshift({
-        postTitle, postDescription, postLink, postId,
-      });
-    });
-
-    currentFeed.feedPosts = feedPosts;
-    render(state, 'content');
   }
+
+  const findFeed = (obj) => (_.get(obj, 'feedUrl') === url);
+  const currentFeed = initialState.feeds.find(findFeed);
+  let postId = currentFeed.feedId;
+
+  posts.forEach((post) => {
+    const postTitle = post.querySelector('title').textContent;
+    const postDescription = post.querySelector('description').textContent;
+    const linkElement = post.querySelector('link');
+    const postLink = linkElement.nextSibling.textContent.trim();
+    watchedState.posts.unshift({
+      postTitle, postDescription, postLink, postId,
+    });
+    postId += 1;
+  });
 };
 
 const postsSelection = (url) => {
@@ -115,15 +107,17 @@ const postsSelection = (url) => {
         default:
           throw new Error('Error!');
       }
-      console.log(error.message);
+      console.log(error);
     });
 };
 
 let timerId = '';
+
 const checkFeed = () => {
   clearTimeout(timerId);
   timerId = setTimeout(function innerFunc() {
-    state.content.forEach(({ feedUrl }) => {
+    state.posts = [];
+    state.feeds.forEach(({ feedUrl }) => {
       postsSelection(feedUrl);
     });
     timerId = setTimeout(innerFunc, 5000);
@@ -165,13 +159,9 @@ const app = () => {
     const link = button.previousSibling;
     if (e.target === button || e.target === link) {
       const watchedPostLink = link.getAttribute('href');
-      const currentFeed = link.getAttribute('data-feedUrl');
       const watchedPostId = button.getAttribute('data-id');
-      const findFeed = (obj) => (_.get(obj, 'feedUrl') === currentFeed);
-      const postFeed = state.content.find(findFeed);
-      const { feedPosts } = postFeed;
       const findPost = (obj) => (_.get(obj, 'postId') === Number(watchedPostId));
-      watchedState.modalPost = feedPosts.find(findPost);
+      watchedState.modalPost = state.posts.find(findPost);
       watchedState.uiState.watchedPosts.push(watchedPostLink);
     }
   });
