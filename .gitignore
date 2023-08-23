@@ -5,4 +5,3 @@ assets
 /test-results/
 /playwright-report/
 /playwright/.cache/
-/test-examples/
