@@ -1,6 +1,17 @@
 export default {
   ru: {
     translation: {
+      lngButtonText: 'ENG',
+      addButton: 'Добавить',
+      header: 'RSS агрегатор',
+      desc: 'Начните читать RSS сегодня!',
+      placeholder: 'RSS-ссылка',
+      example: 'Пример: https://ru.hexlet.io/lessons.rss',
+      feedTitle: 'Фиды',
+      postsTitle: 'Посты',
+      postButton: 'Просмотр',
+      close: 'Закрыть',
+      link: 'Читать полностью',
       validate: {
         success: 'RSS успешно загружен',
         errors: {
