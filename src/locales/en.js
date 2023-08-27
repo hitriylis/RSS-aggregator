@@ -11,7 +11,7 @@ export default {
     double: 'This URL has already been added',
     feedTitle: 'Feed',
     postsTitle: 'Posts',
-    postButton: 'Read',
+    postButton: 'Preview',
     close: 'Close',
     link: 'Read',
     empty: 'This field must not be empty',
