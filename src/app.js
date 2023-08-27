@@ -1,170 +1,176 @@
 import onChange from 'on-change';
+import { uniqueId } from 'lodash';
+import i18next from 'i18next';
 import axios from 'axios';
-import * as yup from 'yup';
-import { string } from 'yup';
-import _ from 'lodash';
-import { render, handleProcessState } from './view';
-import parser from './parser';
+import { string, setLocale } from 'yup';
+import resources from './locales/index.js';
+import render from './render.js';
+import parseRSS from './parser.js';
 
-yup.setLocale({
-  string: {
-    url: () => 'validate.errors.invalidUrl',
-  },
-});
+const getAllOriginsResponse = (url) => {
+  const allOriginsLink = 'https://allorigins.hexlet.app/get';
 
-const urlSchema = (string().url().nullable());
+  const workingUrl = new URL(allOriginsLink);
 
-const state = {
-  urls: [],
-  isValid: '',
-  error: '',
-  feeds: [],
-  posts: [],
-  uiState: {
-    watchedPosts: [],
-  },
-  modalPost: '',
+  workingUrl.searchParams.set('disableCache', 'true');
+  workingUrl.searchParams.set('url', url);
+
+  return axios.get(workingUrl);
 };
 
-const watchedState = onChange(state, (path) => {
-  switch (path) {
-    case 'isValid':
-      handleProcessState(state);
-      break;
-    case 'feeds':
-      render(state, 'feeds');
-      break;
-    case 'posts':
-      render(state, 'posts');
-      break;
-    case 'uiState.watchedPosts':
-      render(state, 'posts');
-      break;
-    case 'modalPost':
-      render(state, 'modalPost');
-      break;
-    default:
-      throw new Error('Unknown state!');
-  }
-});
-
-const responseDocument = (url, doc, initialState) => {
-  const feedTitle = doc.body.querySelector('title').textContent;
-  const feedDescription = doc.body.querySelector('description').textContent;
-  const posts = doc.querySelectorAll('item');
-  const postsCount = posts.length;
-  const feedUrl = url;
-
-  if (!initialState.urls.includes(url)) {
-    const feedsCount = initialState.feeds.length;
-    const postsArea = feedsCount * 100;
-    const feedId = postsArea;
-    initialState.urls.push(url);
-    watchedState.isValid = 'done';
-    watchedState.feeds.push({
-      feedTitle, feedDescription, feedId, feedUrl, postsCount,
-    });
-  }
-
-  const findFeed = (obj) => (_.get(obj, 'feedUrl') === url);
-  const currentFeed = initialState.feeds.find(findFeed);
-  let postId = currentFeed.feedId;
-
-  posts.forEach((post) => {
-    const postTitle = post.querySelector('title').textContent;
-    const postDescription = post.querySelector('description').textContent;
-    const linkElement = post.querySelector('link');
-    const postLink = linkElement.nextSibling.textContent.trim();
-    watchedState.posts.unshift({
-      postTitle, postDescription, postLink, postId,
-    });
-    postId += 1;
-  });
-};
-
-const postsSelection = (url) => {
-  axios({
-    method: 'get',
-    url: `https://allorigins.hexlet.app/get?disableCache=true&url=${url}`,
-    timeout: 10000,
+const getHttpContents = (url) => getAllOriginsResponse(url)
+  .then((response) => {
+    const responseData = response.data.contents;
+    return responseData;
   })
-    .then((response) => response.data)
-    .then((data) => data.contents)
-    .then((text) => parser(text))
-    .then((doc) => {
-      responseDocument(url, doc, state);
-    })
-    .catch((error) => {
-      switch (error.name) {
-        case 'TypeError':
-          state.error = 'validate.errors.invalidRss';
-          watchedState.isValid = 'error';
-          break;
-        case 'AxiosError':
-          state.error = 'validate.errors.networkError';
-          watchedState.isValid = 'error';
-          break;
-        default:
-          throw new Error('Error!');
-      }
-      console.log(error);
-    });
+  .catch(() => { throw new Error('networkError'); });
+
+const addPosts = (feedId, items, state) => {
+  const posts = items.map((item) => ({
+    feedId,
+    id: uniqueId(),
+    ...item,
+  }));
+  state.posts = posts.concat(state.posts);
 };
 
-let timerId = '';
-const cycle = () => {
-  clearTimeout(timerId);
-  timerId = setTimeout(function innerFunc() {
-    state.posts = [];
-    state.feeds.forEach(({ feedUrl }) => {
-      postsSelection(feedUrl);
-    });
-    timerId = setTimeout(innerFunc, 5000);
-  }, 5000);
-};
+const trackUpdates = (feedIds, state, timeout = 5000) => {
+  const inner = () => {
+    const promises = state.feeds.map((feed) => getHttpContents(feed.link)
+      .then(parseRSS)
+      .catch((error) => ({ error })));
 
-const app = () => {
-  const form = document.querySelector('form');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const urlName = formData.get('url');
+    Promise.allSettled(promises)
+      .then((results) => results.forEach((result, index) => {
+        const parsedRSS = result.status === 'fulfilled' ? result.value : null;
+        const feedId = state.feeds[index].id;
 
-    if (!urlName) {
-      state.error = 'validate.errors.emptyUrl';
-      watchedState.isValid = 'error';
-    } else {
-      urlSchema.validate(urlName).then((response) => {
-        if (state.urls.includes(response)) {
-          state.error = 'validate.errors.existingUrl';
-          watchedState.isValid = 'error';
-        } else {
-          state.error = '';
-          watchedState.isValid = 'sending';
-          postsSelection(urlName);
-          cycle();
+        if (!parsedRSS) return;
+
+        const postsUrls = state.posts
+          .filter((post) => feedId === post.feedId)
+          .map(({ link }) => link);
+        const newItems = parsedRSS.items.filter(({ link }) => !postsUrls.includes(link));
+
+        if (newItems.length > 0) {
+          addPosts(feedId, newItems, state);
         }
-      })
-        .catch((error) => {
-          state.error = error.message;
-          watchedState.isValid = 'error';
-        });
-    }
-  });
-
-  const postsList = document.querySelector('.list-group');
-  postsList.addEventListener('click', (e) => {
-    const post = e.target.closest('.list-group-item');
-    const button = post.querySelector('button');
-    const link = button.previousSibling;
-    if (e.target === button || e.target === link) {
-      const watchedPostLink = link.getAttribute('href');
-      const watchedPostId = button.getAttribute('data-id');
-      const findPost = (obj) => (_.get(obj, 'postId') === Number(watchedPostId));
-      watchedState.modalPost = state.posts.find(findPost);
-      watchedState.uiState.watchedPosts.push(watchedPostLink);
-    }
-  });
+      }))
+      .catch((error) => console.error(error))
+      .then(() => setTimeout(inner, timeout));
+  };
+  setTimeout(inner, timeout);
 };
 
-export default app;
+export default () => {
+  const defaultLanguage = 'ru';
+
+  const i18nInstance = i18next.createInstance();
+
+  setLocale({
+    mixed: { default: 'default', notOneOf: 'exist' },
+    string: { url: 'url' },
+  });
+
+  i18nInstance
+    .init({
+      lng: defaultLanguage,
+      debug: true,
+      resources,
+    })
+    .then(() => {
+      const elements = {
+        form: document.querySelector('.rss-form'),
+        input: document.querySelector('#url-input'),
+        example: document.querySelector('.text-muted'),
+        feedback: document.querySelector('.feedback'),
+        submit: document.querySelector('button[type="submit"]'),
+        feeds: document.querySelector('.feeds'),
+        posts: document.querySelector('.posts'),
+        modal: {
+          modalElement: document.querySelector('.modal'),
+          title: document.querySelector('.modal-title'),
+          body: document.querySelector('.modal-body'),
+          showFull: document.querySelector('.full-article'),
+        },
+      };
+
+      const initialState = {
+        form: {
+          state: 'filling',
+          url: '',
+          error: '',
+        },
+
+        feeds: [],
+        posts: [],
+        seenIds: new Set(),
+
+        modal: {
+          title: '',
+          description: '',
+          link: '',
+        },
+      };
+
+      const state = onChange(initialState, render(elements, initialState, i18nInstance));
+
+      trackUpdates(state.feeds, state);
+
+      elements.form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        state.form.error = '';
+
+        const urlsList = state.feeds.map(({ link }) => link);
+
+        const schema = string().url().notOneOf(urlsList);
+
+        schema
+          .validate(state.form.url)
+          .then(() => {
+            state.form.state = 'sending';
+
+            return getHttpContents(state.form.url);
+          })
+          .then(parseRSS)
+          .then((parsedRSS) => {
+            const feedId = uniqueId();
+
+            const feed = {
+              id: feedId,
+              title: parsedRSS.title,
+              description: parsedRSS.description,
+              link: state.form.url,
+            };
+
+            state.feeds.push(feed);
+
+            addPosts(feedId, parsedRSS.items, state);
+
+            state.form.url = '';
+          })
+          .catch((error) => {
+            const message = error.message ?? 'default';
+            state.form.error = message;
+          })
+          .finally(() => {
+            state.form.state = 'filling';
+          });
+      });
+
+      elements.input.addEventListener('change', (e) => {
+        state.form.url = e.target.value.trim();
+      });
+
+      elements.modal.modalElement.addEventListener('show.bs.modal', (e) => {
+        const postId = e.relatedTarget.getAttribute('data-id');
+        const post = state.posts.find(({ id }) => postId === id);
+
+        const { title, description, link } = post;
+
+        state.seenIds.add(postId);
+        state.modal = { title, description, link };
+      });
+    });
+};
