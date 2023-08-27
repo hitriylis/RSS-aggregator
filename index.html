@@ -1,17 +1,32 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,shrink-to-fit=no"
+    />
     <title>RSS aggregator</title>
   </head>
   <body class="d-flex flex-column min-vh-100">
-    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="modal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modal"
+      aria-hidden="true"
+    >
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title"></h5>
-            <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body text-break"></div>
           <div class="modal-footer">
@@ -22,43 +37,69 @@
               target="_blank"
               rel="noopener noreferrer"
               data-i18n="link"
-              >
-            </a>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close"></button>
+              ;
+            ></a
+            ><button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              data-i18n="close"
+              ;
+            ></button>
           </div>
         </div>
       </div>
     </div>
     <main class="flex-grow-1">
       <section class="container-fluid bg-dark p-5">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <button
+            id="lng"
+            type="button"
+            class="btn btn-outline-secondary"
+            data-i18n="lngButtonText"
+          ></button>
+        </div>
         <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto text-white">
             <h1 class="display-3 mb-0" data-i18n="header"></h1>
             <p class="lead" data-i18n="desc"></p>
-            <form action="" class="rss-form text-body">
+            <form
+              data-form="url"
+              method="post"
+              action=""
+              class="rss-form text-body"
+              novalidate
+            >
               <div class="row">
                 <div class="col">
                   <div class="form-floating">
                     <input
                       id="url-input"
-                      autofocus
-                      required
+                      type="url"
+                      autofocus=""
+                      required=""
                       name="url"
                       aria-label="url"
                       class="form-control w-100"
-                      placeholder="ссылка RSS"
+                      placeholder="RSS name"
                       autocomplete="off"
                     />
                     <label for="url-input" data-i18n="placeholder"></label>
                   </div>
                 </div>
                 <div class="col-auto">
-                  <button type="submit" aria-label="add" class="h-100 btn btn-lg btn-primary px-sm-5" data-i18n="addButton">
-                  </button>
+                  <button
+                    id="submitButton"
+                    type="submit"
+                    aria-label="add"
+                    class="h-100 btn btn-lg btn-secondary px-sm-5"
+                    data-i18n="addButton"
+                  ></button>
                 </div>
               </div>
             </form>
-            <p class="mt-2 mb-0" style="color: #6c757d" data-i18n="example"></p>
+            <p class="mt-2 mb-0 text-secondary" data-i18n="example"></p>
             <p class="feedback m-0 position-absolute small text-danger"></p>
           </div>
         </div>
@@ -66,17 +107,11 @@
       <section class="container-fluid container-xxl p-5">
         <div class="row">
           <div class="col-md-10 col-lg-8 order-1 mx-auto posts">
-            <div class="card border-0">
-                <div class="card-body"><h2 class="card-title h4"></h2></div>
-                <ul class="list-group border-0 rounded-0"></ul>
-            </div>
+            <div id="contentList" class="card border-0"></div>
           </div>
           <div class="col-md-10 col-lg-4 mx-auto order-0 order-lg-1 feeds">
-            <div class="card border-0">
-                <div class="card-body"><h2 class="card-title h4"></h2></div>
-                <ul class="list-group border-0 rounded-0"></ul>
-            </div>
-        </div>
+            <div id="feedList" class="card border-0"></div>
+          </div>
         </div>
       </section>
     </main>

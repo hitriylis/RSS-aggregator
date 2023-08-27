@@ -1,30 +1,38 @@
-const domParser = new DOMParser();
+import { newInstance } from './locales/index.js';
 
-export default (responseData) => {
-  const xmlDocument = domParser.parseFromString(responseData, 'text/xml');
-  const rootTagName = xmlDocument.documentElement.tagName.toLowerCase();
+const parser = new DOMParser();
 
-  if (rootTagName !== 'rss') throw new Error('noRSS');
+const rssParser = (data, url) => {
+  const parsed = parser.parseFromString(data.data.contents, 'application/xml');
 
-  const channel = xmlDocument.querySelector('channel');
-  const channelTitle = xmlDocument.querySelector('channel title').textContent;
-  const channelDescription = xmlDocument.querySelector('channel description').textContent;
-
-  const itemElements = channel.getElementsByTagName('item');
-
-  const items = [...itemElements].map((item) => {
-    const title = item.querySelector('title').textContent;
-    const description = item.querySelector('description').textContent;
-    const link = item.querySelector('channel link').textContent;
-
-    return { title, description, link };
+  if (parsed.querySelector('parsererror')) {
+    return { message: newInstance.t('noRSS') };
+  }
+  const titleElement = parsed.querySelector('title');
+  const feedTitle = titleElement.textContent;
+  const descriptionElement = parsed.querySelector('description');
+  const feedDescription = descriptionElement.textContent;
+  const itemTags = parsed.querySelectorAll('item');
+  const items = [...itemTags].map((item) => {
+    const title = item.querySelector('title');
+    const link = item.querySelector('link');
+    const description = item.querySelector('description');
+    return {
+      title: title.innerHTML
+        .trim()
+        .replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, ''),
+      link: link.innerHTML,
+      description: description.innerHTML
+        .trim()
+        .replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, ''),
+    };
   });
 
-  const parsedData = {
-    title: channelTitle,
-    description: channelDescription,
+  return {
+    title: feedTitle,
+    description: feedDescription,
+    link: url,
     items,
   };
-
-  return parsedData;
 };
+export default rssParser;

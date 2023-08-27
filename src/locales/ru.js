@@ -1,20 +1,21 @@
 export default {
   translation: {
-    form: {
-      submit: 'Добавить',
-      loading: 'Подождите',
-    },
-    feeds: 'Фиды',
-    posts: 'Посты',
-    preview: 'Просмотр',
+    lngButtonText: 'ENG',
+    addButton: 'Добавить',
+    header: 'RSS агрегатор',
+    desc: 'Начните читать RSS сегодня!',
+    placeholder: 'RSS-ссылка',
+    example: 'Пример: https://ru.hexlet.io/lessons.rss',
     success: 'RSS успешно загружен',
-
-    errors: {
-      default: 'Неверные данные',
-      url: 'Ссылка должна быть валидным URL',
-      exist: 'RSS уже существует',
-      noRSS: 'Ресурс не содержит валидный RSS',
-      networkError: 'Ошибка сети',
-    },
+    incorrectURL: 'Ссылка должна быть валидным URL',
+    double: 'RSS уже существует',
+    empty: 'Не должно быть пустым',
+    noRSS: 'Ресурс не содержит валидный RSS',
+    feedTitle: 'Фиды',
+    postsTitle: 'Посты',
+    postButton: 'Просмотр',
+    close: 'Закрыть',
+    link: 'Читать полностью',
+    networkError: 'Ошибка сети',
   },
 };
