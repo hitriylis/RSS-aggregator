@@ -44,7 +44,7 @@ const app = () => {
 
   const state = {
     status: '',
-    feed: [],
+    feeds: [],
     errors: {},
     state: '',
     lng: 'ru',
@@ -69,7 +69,7 @@ const app = () => {
       .string(newInstance.t('incorrectURL'))
       .required(newInstance.t('empty'))
       .url(newInstance.t('incorrectURL'))
-      .notOneOf(watchedState.feed, newInstance.t('double')),
+      .notOneOf(watchedState.feeds, newInstance.t('double')),
   }));
 
   const validate = (input) => {
@@ -96,7 +96,7 @@ const app = () => {
           watchedState.state = 'invalid';
           watchedState.status = '';
         } else {
-          watchedState.feed.push(URL);
+          watchedState.feeds.push(URL);
           watchedState.status = '';
           watchedState.state = 'valid';
           const feedID = _.uniqueId();
