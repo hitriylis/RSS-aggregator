@@ -10,10 +10,11 @@ const config = {
   },
   devServer: {
     open: true,
+    hot: false,
+    liveReload: true,
+    watchFiles: ['dist/**/*'],
     host: 'localhost',
-    client: {
-      overlay: false,
-    },
+    static: { directory: path.resolve(__dirname, 'dist') },
   },
   plugins: [
     new HtmlWebpackPlugin({
