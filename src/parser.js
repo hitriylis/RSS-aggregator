@@ -4,7 +4,7 @@ const rssParser = (data, url) => {
   const parsed = parser.parseFromString(data.data.contents, 'application/xml');
 
   if (parsed.querySelector('parsererror')) {
-    throw new Error('noRSS');
+    throw new Error('networkError');
   }
   const titleElement = parsed.querySelector('title');
   const feedTitle = titleElement.textContent;

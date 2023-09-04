@@ -19,7 +19,7 @@ const getLink = (url) => {
 const aggregator = (url) => axios
   .get(getLink(url), { timeout: 5000 })
   .then((data) => rssParser(data, url))
-  .catch(() => ({ message: newInstance.t('networkError') }));
+  .catch(() => ({ message: newInstance.t('noRSS') }));
 
 const update = (watchedState) => {
   watchedState.feed.forEach((URL) => aggregator(URL).then((result) => {
