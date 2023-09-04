@@ -1,43 +1,13 @@
-import axios from 'axios';
 import './styles.scss';
 import 'bootstrap/js/dist/modal.js';
 import * as yup from 'yup';
 import onChange from 'on-change';
 import _ from 'lodash';
 import { newInstance, setLocales } from './locales/index.js';
-import rssParser from './parser.js';
 import render from './view.js';
 import elements from './elements.js';
-
-const getLink = (url) => {
-  const resultUrl = new URL('https://allorigins.hexlet.app/get');
-  resultUrl.searchParams.set('disableCache', 'true');
-  resultUrl.searchParams.set('url', url);
-  return resultUrl;
-};
-
-const aggregator = (url) => axios
-  .get(getLink(url), { timeout: 5000 })
-  .then((data) => rssParser(data, url))
-  .catch(() => ({ message: newInstance.t('noRSS') }));
-
-const update = (watchedState) => {
-  watchedState.feed.forEach((URL) => aggregator(URL).then((result) => {
-    const getCorrectFeed = (element) => element.link === URL;
-    const correctFeed = watchedState.feedList.find(getCorrectFeed);
-    const filteredItems = _.differenceBy(
-      result.items,
-      watchedState.feedListItems,
-      'title',
-    );
-    const newItems = filteredItems.map((item) => ({
-      ...item,
-      feedID: correctFeed.id,
-      postID: _.uniqueId(),
-    }));
-    watchedState.feedListItems.push(...newItems);
-  }));
-};
+import aggregator from './aggregator.js';
+import update from './update.js';
 
 const app = () => {
   setLocales();

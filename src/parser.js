@@ -1,10 +1,15 @@
+import { newInstance } from './locales/index.js';
+
 const parser = new DOMParser();
 
 const rssParser = (data, url) => {
   const parsed = parser.parseFromString(data.data.contents, 'application/xml');
 
+  // if (parsed.querySelector('parsererror')) {
+  //   throw new Error('noRSS');
+  // }
   if (parsed.querySelector('parsererror')) {
-    throw new Error('networkError');
+    return { message: newInstance.t('noRSS') };
   }
   const titleElement = parsed.querySelector('title');
   const feedTitle = titleElement.textContent;
