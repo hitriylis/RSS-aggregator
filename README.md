@@ -8,7 +8,7 @@ RSS aggregator - is a service for aggregating RSS feeds, with the help of which 
 ## Install
 
 ```bash
-git clone git@github.com:hitriylis/frontend-project-11
+git clone git@github.com:hitriylis/RSS-aggregator
 ```
 ```bash
 make install
