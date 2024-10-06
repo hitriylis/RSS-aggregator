@@ -1,5 +1,5 @@
 # RSS aggregator
-[![Actions Status](https://github.com/hitriylis/frontend-project-11/workflows/hexlet-check/badge.svg)](https://github.com/hitriylis/frontend-project-11/actions) [![Maintainability](https://api.codeclimate.com/v1/badges/217960c8e110bac3f98a/maintainability)](https://codeclimate.com/github/hitriylis/RSS-aggregator/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/217960c8e110bac3f98a/maintainability)](https://codeclimate.com/github/hitriylis/RSS-aggregator/maintainability)
 
 ## Description
 
